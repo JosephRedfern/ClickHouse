@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tags: long, no-ubsan
+# Tags: long
 
 CURDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=../shell_config.sh
@@ -56,12 +56,32 @@ set timeout 1
 while {\$is_done == 0} {
     send -- "\\t"
     expect {
+        -re "\\a\\a\\a\\a" {
+            # incr beep_count
+            # if {\$beep_count > 2} {
+            puts \$stdout_channel "$compword_begin$compword_end: FAIL"
+            set is_done 1
+            # }
+        }
         "$compword_begin$compword_end" {
             puts \$stdout_channel "$compword_begin$compword_end: OK"
             set is_done 1
         }
+        -re {\x1B\[0m} {
+            after 100
+        }
+        -re {\x1B\[0;95m} {
+            puts \$stdout_channel "$compword_begin$compword_end: FAIL"
+            set is_done 1
+        }
+        # -re {..*} {
+        #     set received_text [string map {"\\n" "1" "\\r" "2" "\\t" "3" "\\a" "4" \x1B ""} \$expect_out(buffer)]
+        #     puts \$stdout_channel "Test $compword_begin"
+        #     puts \$stdout_channel "Got: \$received_text"
+        #     after 100
+        # }
         default {
-            sleep 1
+            after 100
         }
     }
 }
