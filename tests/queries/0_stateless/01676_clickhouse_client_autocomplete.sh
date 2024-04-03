@@ -56,20 +56,17 @@ set timeout 1
 while {\$is_done == 0} {
     send -- "\\t"
     expect {
-        -re "\\a\\a\\a\\a" {
-            # incr beep_count
-            # if {\$beep_count > 2} {
+        -re "\\a\\a" {
             puts \$stdout_channel "$compword_begin$compword_end: FAIL"
             set is_done 1
-            # }
         }
         "$compword_begin$compword_end" {
             puts \$stdout_channel "$compword_begin$compword_end: OK"
             set is_done 1
         }
-        -re {\x1B\[0m} {
-            after 100
-        }
+        # -re {\x1B\[0m} {
+        #     after 100
+        # }
         -re {\x1B\[0;95m} {
             puts \$stdout_channel "$compword_begin$compword_end: FAIL"
             set is_done 1
@@ -81,7 +78,7 @@ while {\$is_done == 0} {
         #     after 100
         # }
         default {
-            after 100
+            after 1000
         }
     }
 }
